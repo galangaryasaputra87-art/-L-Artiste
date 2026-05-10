@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>L'Artiste - Galeri Foto Estetik</title>
+    <title>L'Artiste - Multi Grid Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
@@ -11,19 +11,16 @@
             --bg-color: #0d0d0d;
             --accent-gold: #d4af37;
             --soft-cream: #f4e4d4;
-            --glass: rgba(255, 255, 255, 0.03);
         }
 
         body {
             font-family: 'Montserrat', sans-serif;
             background-color: var(--bg-color);
             color: var(--soft-cream);
-            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        h1, h2, .font-serif {
-            font-family: 'Cormorant Garamond', serif;
-        }
+        h1, .font-serif { font-family: 'Cormorant Garamond', serif; }
 
         .gradient-text {
             background: linear-gradient(to right, #f4e4d4, #d4af37);
@@ -31,265 +28,210 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* Responsive Multi-Column Grid */
+        .mosaic-grid {
+            display: grid;
+            /* Di HP: 2 kolom (minmax 140px agar muat 2 kotak berdampingan) */
+            grid-template-columns: repeat(2, 1fr); 
+            grid-auto-rows: 160px;
+            grid-auto-flow: dense;
+            gap: 12px;
+        }
+
+        /* Di Tablet ke atas: 3 atau 4 kolom */
+        @media (min-width: 768px) {
+            .mosaic-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                grid-auto-rows: 220px;
+                gap: 20px;
+            }
+        }
+
+        /* Variasi Ukuran Kotak */
+        .item-tall { grid-row: span 2; }
+        .item-wide { grid-column: span 2; }
+        .item-big { grid-column: span 2; grid-row: span 2; }
+
         .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .glass-card:hover {
-            border-color: var(--accent-gold);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-        }
-
-        .photo-item {
-            break-inside: avoid;
-            margin-bottom: 2rem;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
-            border-radius: 4px;
+            height: 100%;
+            width: 100%;
+            border-radius: 12px;
+        }
+
+        .glass-card:active {
+            transform: scale(0.95);
         }
 
         .photo-overlay {
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
-            opacity: 0;
-            transition: opacity 0.4s ease;
+            background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 12px;
+            /* Overlay selalu terlihat sedikit di mobile agar estetik */
+            opacity: 0.9; 
         }
 
-        .photo-item:hover .photo-overlay {
-            opacity: 1;
+        /* Di Desktop, overlay hanya muncul saat hover */
+        @media (min-width: 1024px) {
+            .photo-overlay { opacity: 0; transition: opacity 0.3s ease; }
+            .glass-card:hover .photo-overlay { opacity: 1; }
+            .glass-card:hover { border-color: var(--accent-gold); }
         }
 
-        /* Floating Animation */
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
-        .animate-float {
-            animation: float 4s ease-in-out infinite;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 5px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0d0d0d;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #222;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--accent-gold);
-        }
-
-        .tag-pill {
-            transition: all 0.3s ease;
-            letter-spacing: 0.1em;
-        }
-
-        .active-tag {
-            background-color: var(--accent-gold);
-            color: black;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.3);
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="selection:bg-amber-200 selection:text-black">
+<body class="px-4 py-8 md:p-12">
 
-    <!-- Hero Decor -->
-    <div class="fixed top-[-10%] right-[-10%] w-[40%] h-[40%] bg-amber-900/10 blur-[120px] rounded-full pointer-events-none"></div>
-    <div class="fixed bottom-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-900/10 blur-[120px] rounded-full pointer-events-none"></div>
-
-    <!-- Navigation Area -->
-    <header class="relative z-10 max-w-7xl mx-auto px-8 pt-20 pb-12 text-center">
-        <h1 class="text-6xl md:text-8xl font-medium tracking-tight mb-4 gradient-text italic">L'Artiste</h1>
-        <p class="text-stone-400 font-light tracking-[0.3em] uppercase text-xs mb-10">Kurasi Memori & Visual Estetik</p>
+    <!-- Header -->
+    <header class="max-w-5xl mx-auto mb-10 text-center">
+        <h1 class="text-5xl md:text-7xl font-medium gradient-text italic mb-2">L'Artiste</h1>
+        <p class="text-stone-500 tracking-[0.3em] text-[8px] md:text-[10px] uppercase mb-8">Multi-Column Archive</p>
         
-        <div class="flex flex-wrap justify-center items-center gap-6">
-            <button onclick="openModal()" class="group relative px-8 py-3 overflow-hidden rounded-full border border-stone-700 bg-transparent text-sm tracking-widest transition-all">
-                <span class="relative z-10 group-hover:text-black transition-colors duration-300">TAMBAHKAN KARYA</span>
-                <div class="absolute inset-0 bg-white translate-y-[100%] group-hover:translate-y-0 transition-transform duration-300"></div>
-            </button>
-        </div>
+        <button onclick="openModal()" class="bg-stone-100 text-black px-8 py-3 rounded-full text-[10px] font-bold tracking-widest hover:bg-amber-500 transition-all active:scale-95">
+            UNGGAH MEMORI
+        </button>
     </header>
 
-    <!-- Filters -->
-    <section class="max-w-7xl mx-auto px-8 mb-16 relative z-10">
-        <div id="filter-box" class="flex flex-wrap justify-center gap-3 overflow-x-auto pb-4 no-scrollbar">
-            <!-- Filter buttons injected here -->
-        </div>
-    </section>
+    <!-- Categories / Tags -->
+    <nav id="filter-box" class="max-w-5xl mx-auto mb-8 flex gap-2 overflow-x-auto no-scrollbar pb-2 justify-start md:justify-center"></nav>
 
-    <!-- Gallery Masonry -->
-    <main class="max-w-7xl mx-auto px-8 pb-32 relative z-10">
-        <div id="gallery" class="columns-1 md:columns-2 lg:columns-3 gap-8">
-            <!-- Photos injected here -->
+    <!-- The Grid -->
+    <main class="max-w-5xl mx-auto">
+        <div id="gallery" class="mosaic-grid">
+            <!-- Photos will appear here -->
         </div>
-
-        <!-- Empty State -->
-        <div id="empty-state" class="hidden text-center py-40">
-            <div class="animate-float inline-block">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="0.5" stroke-linecap="round" stroke-linejoin="round" class="text-stone-600"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-            </div>
-            <p class="mt-6 text-stone-500 font-light italic">Galeri ini masih menunggumu...</p>
+        
+        <div id="empty-state" class="hidden text-center py-20 text-stone-600 italic text-sm">
+            Sentuh 'Unggah' untuk mengisi galeri...
         </div>
     </main>
 
     <!-- Modal Upload -->
-    <div id="upload-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-6 bg-black/90 backdrop-blur-md">
-        <div class="w-full max-w-xl glass-card rounded-lg p-10 relative">
-            <button onclick="closeModal()" class="absolute top-6 right-6 text-stone-500 hover:text-white transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-            </button>
-
-            <h2 class="text-3xl font-serif mb-8 text-center italic">Arsip Baru</h2>
+    <div id="upload-modal" class="fixed inset-0 z-50 hidden flex items-end md:items-center justify-center bg-black/90 p-4 backdrop-blur-md">
+        <div class="w-full max-w-md bg-[#111] p-6 rounded-t-3xl md:rounded-2xl border border-stone-800">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-serif italic">Simpan Karya Baru</h2>
+                <button onclick="closeModal()" class="text-stone-500 text-2xl">&times;</button>
+            </div>
             
-            <form id="form-upload" class="space-y-8">
-                <div class="relative group">
+            <form id="form-upload" class="space-y-5">
+                <div class="border border-dashed border-stone-800 rounded-xl p-4 text-center">
                     <input type="file" id="file-input" accept="image/*" class="hidden" required>
-                    <label for="file-input" class="flex flex-col items-center justify-center border border-dashed border-stone-700 py-12 cursor-pointer rounded-lg hover:border-amber-500 transition-colors group">
-                        <div id="preview-box" class="hidden mb-4">
-                            <img id="img-preview" src="#" class="h-32 object-contain rounded border border-stone-800">
-                        </div>
-                        <span id="label-text" class="text-stone-500 text-xs tracking-widest uppercase">Pilih Gambar</span>
+                    <label for="file-input" id="drop-label" class="cursor-pointer text-[10px] tracking-widest text-stone-500 uppercase">
+                        [ PILIH FOTO DARI GALERI ]
                     </label>
                 </div>
 
-                <div class="relative">
-                    <input type="text" id="tag-input" placeholder="LABEL (MISAL: ARCHITECTURE, NATURE)" required class="w-full bg-transparent border-b border-stone-800 py-3 text-sm focus:outline-none focus:border-amber-500 tracking-widest placeholder:text-stone-700 uppercase">
+                <input type="text" id="tag-input" placeholder="NAMA PENANDA (CONTOH: AIB, MOMENT)" required class="w-full bg-transparent border-b border-stone-800 py-3 text-[10px] tracking-[0.2em] focus:outline-none focus:border-amber-500 uppercase">
+                
+                <div class="space-y-2">
+                    <p class="text-[8px] text-stone-600 tracking-widest uppercase">Pilih Ukuran Kotak:</p>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button type="button" onclick="setSize('normal')" id="btn-normal" class="size-btn text-[9px] py-3 border border-amber-500 text-amber-500 rounded-lg font-bold">KOTAK</button>
+                        <button type="button" onclick="setSize('wide')" id="btn-wide" class="size-btn text-[9px] py-3 border border-stone-800 rounded-lg text-stone-500">LEBAR</button>
+                        <button type="button" onclick="setSize('tall')" id="btn-tall" class="size-btn text-[9px] py-3 border border-stone-800 rounded-lg text-stone-500">TINGGI</button>
+                    </div>
                 </div>
 
-                <button type="submit" class="w-full py-4 bg-stone-100 text-black text-xs font-bold tracking-[0.2em] uppercase hover:bg-amber-500 transition-colors">
-                    SIMPAN KE GALERI
-                </button>
+                <button type="submit" class="w-full py-4 bg-amber-500 text-black text-[10px] font-bold tracking-[0.2em] rounded-xl">SIMPAN SEKARANG</button>
             </form>
         </div>
     </div>
 
     <script>
-        let photoStore = JSON.parse(localStorage.getItem('artist_vault_v1')) || [];
+        let photoStore = JSON.parse(localStorage.getItem('artist_multi_grid_v1')) || [];
+        let selectedSize = 'normal';
         let activeTag = 'ALL';
 
-        const galleryEl = document.getElementById('gallery');
-        const emptyEl = document.getElementById('empty-state');
-        const filterEl = document.getElementById('filter-box');
-        const modalEl = document.getElementById('upload-modal');
-        const fileInput = document.getElementById('file-input');
-        const imgPreview = document.getElementById('img-preview');
-        const previewBox = document.getElementById('preview-box');
-
-        // Modal Functions
-        function openModal() { modalEl.classList.remove('hidden'); }
-        function closeModal() { 
-            modalEl.classList.add('hidden'); 
-            document.getElementById('form-upload').reset();
-            previewBox.classList.add('hidden');
+        function setSize(size) {
+            selectedSize = size;
+            document.querySelectorAll('.size-btn').forEach(btn => {
+                btn.classList.replace('border-amber-500', 'border-stone-800');
+                btn.classList.replace('text-amber-500', 'text-stone-500');
+            });
+            const activeBtn = document.getElementById('btn-' + size);
+            activeBtn.classList.replace('border-stone-800', 'border-amber-500');
+            activeBtn.classList.replace('text-stone-500', 'text-amber-500');
         }
 
-        // Preview Logic
-        fileInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    imgPreview.src = e.target.result;
-                    previewBox.classList.remove('hidden');
-                    document.getElementById('label-text').innerText = "GANTI GAMBAR";
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+        function openModal() { document.getElementById('upload-modal').classList.remove('hidden'); }
+        function closeModal() { document.getElementById('upload-modal').classList.add('hidden'); }
 
-        // Save Logic
-        document.getElementById('form-upload').addEventListener('submit', function(e) {
+        document.getElementById('file-input').onchange = function() {
+            if(this.files[0]) document.getElementById('drop-label').innerText = "FOTO TERPILIH: " + this.files[0].name.substring(0, 15) + "...";
+        };
+
+        document.getElementById('form-upload').onsubmit = function(e) {
             e.preventDefault();
             const tag = document.getElementById('tag-input').value.toUpperCase().trim();
-            const file = fileInput.files[0];
+            const file = document.getElementById('file-input').files[0];
 
             if (file) {
                 const reader = new FileReader();
                 reader.onload = e => {
-                    const entry = {
-                        id: Date.now(),
-                        image: e.target.result,
-                        tag: tag,
-                        timestamp: new Date().toLocaleDateString('id-ID')
-                    };
-                    photoStore.unshift(entry);
-                    localStorage.setItem('artist_vault_v1', JSON.stringify(photoStore));
+                    photoStore.unshift({ id: Date.now(), image: e.target.result, tag: tag, size: selectedSize });
+                    localStorage.setItem('artist_multi_grid_v1', JSON.stringify(photoStore));
                     closeModal();
-                    renderAll();
+                    render();
                 };
                 reader.readAsDataURL(file);
             }
-        });
+        };
 
-        function deleteEntry(id) {
-            photoStore = photoStore.filter(p => p.id !== id);
-            localStorage.setItem('artist_vault_v1', JSON.stringify(photoStore));
-            renderAll();
+        function deleteItem(id) {
+            if(confirm('Hapus foto ini?')) {
+                photoStore = photoStore.filter(p => p.id !== id);
+                localStorage.setItem('artist_multi_grid_v1', JSON.stringify(photoStore));
+                render();
+            }
         }
 
-        function renderFilters() {
+        function render() {
+            // Filters
             const tags = ['ALL', ...new Set(photoStore.map(p => p.tag))];
-            filterEl.innerHTML = tags.map(tag => `
-                <button onclick="setFilter('${tag}')" 
-                    class="tag-pill px-6 py-1.5 rounded-full text-[10px] uppercase font-semibold tracking-widest border border-stone-800 
-                    ${activeTag === tag ? 'active-tag' : 'hover:border-stone-500 text-stone-500'}">
-                    ${tag}
-                </button>
+            document.getElementById('filter-box').innerHTML = tags.map(t => `
+                <button onclick="activeTag='${t}';render()" class="whitespace-nowrap px-5 py-1.5 rounded-full text-[9px] tracking-widest border ${activeTag===t?'bg-amber-500 text-black border-amber-500':'border-stone-800 text-stone-500'}">${t}</button>
             `).join('');
-        }
 
-        function setFilter(tag) {
-            activeTag = tag;
-            renderAll();
-        }
-
-        function renderGallery() {
-            galleryEl.innerHTML = '';
-            const filtered = activeTag === 'ALL' 
-                ? photoStore 
-                : photoStore.filter(p => p.tag === activeTag);
+            // Gallery
+            const gallery = document.getElementById('gallery');
+            gallery.innerHTML = '';
+            const filtered = activeTag === 'ALL' ? photoStore : photoStore.filter(p => p.tag === activeTag);
 
             if (filtered.length === 0) {
-                emptyEl.classList.remove('hidden');
+                document.getElementById('empty-state').classList.remove('hidden');
             } else {
-                emptyEl.classList.add('hidden');
+                document.getElementById('empty-state').classList.add('hidden');
                 filtered.forEach(p => {
                     const card = document.createElement('div');
-                    card.className = 'photo-item glass-card group animate-in fade-in slide-in-from-bottom-10 duration-700';
+                    let sizeClass = p.size === 'wide' ? 'item-wide' : (p.size === 'tall' ? 'item-tall' : '');
+                    card.className = `glass-card ${sizeClass} animate-in fade-in zoom-in duration-500`;
                     card.innerHTML = `
-                        <img src="${p.image}" class="w-full grayscale group-hover:grayscale-0 transition-all duration-1000 ease-out">
-                        <div class="photo-overlay absolute inset-0 flex flex-col justify-end p-6">
-                            <div class="flex justify-between items-end">
-                                <div class="transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                    <p class="text-[9px] tracking-widest text-amber-500 font-bold mb-1">${p.timestamp}</p>
-                                    <h3 class="text-sm tracking-[0.2em] uppercase font-light">${p.tag}</h3>
-                                </div>
-                                <button onclick="deleteEntry(${p.id})" class="text-stone-500 hover:text-red-400 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-                                </button>
+                        <img src="${p.image}" class="w-full h-full object-cover">
+                        <div class="photo-overlay">
+                            <div class="flex justify-between items-center w-full">
+                                <span class="text-[8px] font-bold tracking-[0.2em] text-amber-500 truncate mr-2">${p.tag}</span>
+                                <button onclick="deleteItem(${p.id})" class="text-white opacity-40 hover:opacity-100 font-bold px-2">×</button>
                             </div>
                         </div>
                     `;
-                    galleryEl.appendChild(card);
+                    gallery.appendChild(card);
                 });
             }
         }
 
-        function renderAll() {
-            renderFilters();
-            renderGallery();
-        }
-
-        window.onload = renderAll;
+        window.onload = render;
     </script>
 </body>
 </html>
